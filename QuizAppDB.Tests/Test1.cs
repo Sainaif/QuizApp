@@ -75,6 +75,42 @@ namespace QuizAppDB.Tests
         }
 
         [TestMethod]
+        public async Task ImportFromJson_ShouldImportQuizzesCorrectly()
+        {
+            // Arrange
+            var testJson = @"[
+        {
+            ""Title"": ""Sample Quiz"",
+            ""ShowCorrectAnswers"": true,
+            ""Questions"": [
+                {
+                    ""Text"": ""What is 2+2?"",
+                    ""Choices"": [
+                        { ""Text"": ""3"", ""IsCorrect"": false },
+                        { ""Text"": ""4"", ""IsCorrect"": true }
+                    ]
+                }
+            ]
+        }
+    ]";
+
+            var filePath = Path.Combine(Path.GetTempPath(), "test_quizzes.json");
+            await File.WriteAllTextAsync(filePath, testJson);
+
+            // Act
+            await _logic.ImportFromJsonAsync(filePath);
+            var quizzes = await _repository.GetAllQuizzesAsync();
+
+            // Assert
+            Assert.AreEqual(1, quizzes.Count, "Expected exactly 1 quiz in the database.");
+            Assert.AreEqual("Sample Quiz", quizzes[0].Title);
+            Assert.AreEqual(1, quizzes[0].Questions.Count);
+            Assert.AreEqual("What is 2+2?", quizzes[0].Questions[0].Text);
+            Assert.AreEqual(2, quizzes[0].Questions[0].Choices.Count);
+            Assert.IsTrue(quizzes[0].Questions[0].Choices.Any(c => c.Text == "4" && c.IsCorrect));
+        }
+
+        [TestMethod]
         public async Task SaveAndLoadQuizzes_ShouldPersistData()
         {
             // Arrange

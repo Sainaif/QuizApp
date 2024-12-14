@@ -1,7 +1,9 @@
 ﻿using QuizAppDB.Models;
 using QuizAppDB.Data;
 using System;
+using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace QuizAppDB.Logic
@@ -249,6 +251,40 @@ namespace QuizAppDB.Logic
                 Console.WriteLine("\nNieprawidłowy ID quizu.");
             }
         }
+
+        // Method to import quizzes from a JSON file
+        public async Task ImportFromJsonAsync(string filePath)
+        {
+            if (!File.Exists(filePath))
+            {
+                Console.WriteLine("Plik nie został znaleziony!");
+                return;
+            }
+
+            try
+            {
+                // Read JSON content
+                var jsonData = await File.ReadAllTextAsync(filePath);
+
+                // Deserialize JSON to list of quizzes
+                var quizzes = JsonSerializer.Deserialize<List<Quiz>>(jsonData);
+                if (quizzes == null || !quizzes.Any())
+                {
+                    Console.WriteLine("Plik nie zawiera quizów do zaimportowania.");
+                    return;
+                }
+
+                foreach (var quiz in quizzes)
+                {
+                    await _quizRepository.AddQuizAsync(quiz);
+                }
+
+                Console.WriteLine("Quizy zostały pomyślnie zaimportowane!");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Wystąpił błąd podczas importu quizów: {ex.Message}");
+            }
+        }
     }
 }
-
