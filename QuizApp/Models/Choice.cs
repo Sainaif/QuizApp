@@ -12,7 +12,10 @@
         // Optional constructor for easier initialization
         public Choice(string text, bool isCorrect)
         {
+            // Initialize the Text property with the provided text
             Text = text;
+
+            // Initialize the IsCorrect property with the provided value
             IsCorrect = isCorrect;
         }
 
