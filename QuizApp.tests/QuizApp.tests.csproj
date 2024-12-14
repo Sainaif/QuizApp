@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Quiz-app\QuizApp.csproj" />
+    <ProjectReference Include="..\QuizApp\QuizApp.csproj" />
   </ItemGroup>
 
 </Project>
