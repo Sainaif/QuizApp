@@ -1,72 +1,101 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using QuizApp.Models;
+using QuizApp.Persistence;
+using QuizApp.Logic;
 using System.Collections.Generic;
 
-// Test class for QuizManager
-[TestClass]
-public class QuizManagerTests
+namespace QuizApp.Tests
 {
-    // Test to verify that a quiz can be added successfully
-    [TestMethod]
-    public void AddQuiz_ShouldAddQuizToList()
+    [TestClass]
+    public class QuizLogicTests
     {
-        var quizManager = new QuizManager();
-        var quiz = new Quiz { Title = "Przykładowy Quiz", ShowCorrectAnswers = true }; // Include the 'ShowCorrectAnswers' option
+        private QuizLogic _quizLogic = null!; // Initialize to non-nullable to suppress warning
+        private QuizManager _quizManager = null!; // Initialize to non-nullable to suppress warning
 
-        quizManager.AddQuiz(quiz); // Add quiz to manager
-
-        // Verify that the quiz is added
-        Assert.AreEqual(1, quizManager.Quizzes.Count, "Liczba quizów powinna wynosić 1 po dodaniu quizu.");
-        Assert.AreEqual("Przykładowy Quiz", quizManager.Quizzes[0].Title, "Tytuł quizu nie zgadza się.");
-        Assert.IsTrue(quizManager.Quizzes[0].ShowCorrectAnswers, "Opcja 'ShowCorrectAnswers' nie została ustawiona poprawnie.");
-    }
-
-    // Test to verify that quizzes are correctly saved and loaded
-    [TestMethod]
-    public void SaveAndLoadQuizzes_ShouldPersistData()
-    {
-        var quizManager = new QuizManager();
-        var quiz = new Quiz { Title = "Testowy Quiz", ShowCorrectAnswers = true };
-        quiz.Questions.Add(new Question
+        [TestInitialize]
+        public void Setup()
         {
-            Text = "Co to jest C#?",
-            Choices = new List<string> { "Język programowania", "Gra komputerowa", "Film", "Książka" },
-            CorrectChoices = new List<int> { 0 }
-        });
-        quizManager.AddQuiz(quiz); // Add the quiz to manager
+            _quizManager = new QuizManager("test_quizzes.json");
+            _quizLogic = new QuizLogic(_quizManager);
+        }
 
-        string filePath = "test_quizzes.json"; // Define test file path
-
-        // Save and load quizzes
-        quizManager.SaveQuizzesToFile(filePath);
-        quizManager.LoadQuizzesFromFile(filePath);
-
-        // Verify the quizzes are persisted
-        Assert.AreEqual(1, quizManager.Quizzes.Count, "Liczba quizów powinna wynosić 1 po zapisaniu i załadowaniu.");
-        Assert.AreEqual("Testowy Quiz", quizManager.Quizzes[0].Title, "Tytuł quizu powinien zostać zachowany.");
-        Assert.IsTrue(quizManager.Quizzes[0].ShowCorrectAnswers, "Opcja 'ShowCorrectAnswers' powinna zostać zachowana.");
-        Assert.AreEqual(1, quizManager.Quizzes[0].Questions.Count, "Pytania quizu powinny zostać zachowane.");
-        Assert.AreEqual("Co to jest C#?", quizManager.Quizzes[0].Questions[0].Text, "Treść pytania powinna zostać zachowana.");
-    }
-
-    // Test to verify feedback on incorrect answers
-    [TestMethod]
-    public void TakeQuiz_ShouldDisplayCorrectAnswersOnIncorrectResponse()
-    {
-        var quiz = new Quiz { Title = "Feedback Quiz", ShowCorrectAnswers = true };
-        quiz.Questions.Add(new Question
+        [TestMethod]
+        public void AddQuiz_ShouldAddQuizCorrectly()
         {
-            Text = "Które z poniższych są językami programowania?",
-            Choices = new List<string> { "Python", "HTML", "CSS", "C#" },
-            CorrectChoices = new List<int> { 0, 3 }
-        });
+            var quiz = new Quiz { Title = "Test Quiz", ShowCorrectAnswers = true };
+            _quizManager.AddQuiz(quiz);
 
-        // Simulate taking the quiz
-        var question = quiz.Questions[0];
-        var userAnswers = new List<int> { 0, 1 }; // Incorrect answer includes 'HTML'
+            Assert.AreEqual(1, _quizManager.Quizzes.Count);
+            Assert.AreEqual("Test Quiz", _quizManager.Quizzes[0].Title);
+            Assert.IsTrue(_quizManager.Quizzes[0].ShowCorrectAnswers);
+        }
 
-        // Check if the correct answers are displayed for incorrect responses
-        bool isCorrect = userAnswers.OrderBy(a => a).SequenceEqual(question.CorrectChoices.OrderBy(a => a));
-        Assert.IsFalse(isCorrect, "Użytkownik powinien uzyskać błędną odpowiedź.");
-        Assert.IsTrue(quiz.ShowCorrectAnswers, "Poprawne odpowiedzi powinny zostać wyświetlone, gdy opcja 'ShowCorrectAnswers' jest włączona.");
+        [TestMethod]
+        public void SaveAndLoadQuizzes_ShouldPersistData()
+        {
+            var quiz = new Quiz
+            {
+                Title = "Sample Quiz",
+                Questions = new List<Question>
+                {
+                    new Question
+                    {
+                        Text = "What is 2+2?",
+                        Choices = new List<Choice>
+                        {
+                            new Choice("3", false),
+                            new Choice("4", true)
+                        }
+                    }
+                }
+            };
+
+            _quizManager.AddQuiz(quiz);
+            _quizManager.SaveQuizzesToFile();
+            _quizManager.LoadQuizzesFromFile();
+
+            Assert.AreEqual(1, _quizManager.Quizzes.Count);
+            Assert.AreEqual("Sample Quiz", _quizManager.Quizzes[0].Title);
+            Assert.AreEqual(1, _quizManager.Quizzes[0].Questions.Count);
+            Assert.AreEqual("What is 2+2?", _quizManager.Quizzes[0].Questions[0].Text);
+            Assert.AreEqual(2, _quizManager.Quizzes[0].Questions[0].Choices.Count);
+            Assert.IsTrue(_quizManager.Quizzes[0].Questions[0].Choices[1].IsCorrect);
+        }
+
+        [TestMethod]
+        public void ModifyQuestions_ShouldUpdateQuestionCorrectly()
+        {
+            var quiz = new Quiz
+            {
+                Title = "Math Quiz",
+                Questions = new List<Question>
+                {
+                    new Question
+                    {
+                        Text = "What is 3+5?",
+                        Choices = new List<Choice>
+                        {
+                            new Choice("7", false),
+                            new Choice("8", true)
+                        }
+                    }
+                }
+            };
+
+            _quizManager.AddQuiz(quiz);
+
+            var question = _quizManager.Quizzes[0].Questions[0];
+            question.Text = "What is 10-3?";
+            question.Choices = new List<Choice>
+            {
+                new Choice("6", false),
+                new Choice("7", true)
+            };
+
+            Assert.AreEqual("What is 10-3?", _quizManager.Quizzes[0].Questions[0].Text);
+            Assert.AreEqual(2, _quizManager.Quizzes[0].Questions[0].Choices.Count);
+            Assert.AreEqual("7", _quizManager.Quizzes[0].Questions[0].Choices[1].Text);
+            Assert.IsTrue(_quizManager.Quizzes[0].Questions[0].Choices[1].IsCorrect);
+        }
     }
 }
