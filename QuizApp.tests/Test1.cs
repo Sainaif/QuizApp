@@ -4,6 +4,7 @@ using QuizApp.Persistence;
 using QuizApp.Logic;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 
 namespace QuizApp.Tests
 {
@@ -29,7 +30,23 @@ namespace QuizApp.Tests
             // Clean up the test file after each test
             if (File.Exists(_testFilePath))
             {
-                File.Delete(_testFilePath);
+                int retryCount = 0;
+                const int maxRetries = 5;
+                const int delay = 100; // milliseconds
+
+                while (retryCount < maxRetries)
+                {
+                    try
+                    {
+                        File.Delete(_testFilePath);
+                        break;
+                    }
+                    catch (IOException)
+                    {
+                        retryCount++;
+                        Thread.Sleep(delay);
+                    }
+                }
             }
         }
 
