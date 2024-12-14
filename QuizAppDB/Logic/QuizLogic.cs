@@ -10,7 +10,7 @@ namespace QuizAppDB.Logic
 {
     public class QuizLogic
     {
-        private readonly QuizRepository _quizRepository; // Dependency for database operations
+        protected readonly QuizRepository _quizRepository; // Protected to allow access in derived classes
 
         public QuizLogic(QuizRepository quizRepository)
         {
@@ -18,7 +18,7 @@ namespace QuizAppDB.Logic
         }
 
         // Method to create a new quiz
-        public async Task CreateQuizAsync()
+        public virtual async Task CreateQuizAsync()
         {
             Console.Write("\nPodaj tytuł quizu: ");
             string? title = Console.ReadLine();
@@ -67,7 +67,7 @@ namespace QuizAppDB.Logic
         }
 
         // Method to take an existing quiz
-        public async Task TakeQuizAsync()
+        public virtual async Task TakeQuizAsync()
         {
             var quizzes = await _quizRepository.GetAllQuizzesAsync();
             if (!quizzes.Any())

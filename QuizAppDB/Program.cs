@@ -15,14 +15,14 @@ class Program
         using var dbContext = new QuizDbContext(options);
         dbContext.Database.EnsureCreated(); // Ensure the database is created
         var quizRepository = new QuizRepository(dbContext);
-        var quizService = new QuizLogic(quizRepository);
+        var gradingService = new GradingLogic(quizRepository); // Use GradingLogic for grading feature
 
         while (true)
         {
             Console.Clear();
             Console.WriteLine("\nMenu aplikacji Quiz:");
             Console.WriteLine("1. Stwórz quiz");
-            Console.WriteLine("2. Rozwiąż quiz");
+            Console.WriteLine("2. Rozwiąż quiz (z oceną)");
             Console.WriteLine("3. Usuń quiz");
             Console.WriteLine("4. Modyfikuj pytania");
             Console.WriteLine("5. Importuj quizy z pliku JSON");
@@ -34,19 +34,19 @@ class Program
             switch (key)
             {
                 case ConsoleKey.D1:
-                    await quizService.CreateQuizAsync();
+                    await gradingService.CreateQuizAsync();
                     PromptContinue();
                     break;
                 case ConsoleKey.D2:
-                    await quizService.TakeQuizAsync();
+                    await gradingService.TakeQuizAsync(); // Includes grading logic
                     PromptContinue();
                     break;
                 case ConsoleKey.D3:
-                    await quizService.DeleteQuizAsync();
+                    await gradingService.DeleteQuizAsync();
                     PromptContinue();
                     break;
                 case ConsoleKey.D4:
-                    await quizService.ModifyQuestionsAsync();
+                    await gradingService.ModifyQuestionsAsync();
                     PromptContinue();
                     break;
                 case ConsoleKey.D5:
@@ -54,7 +54,7 @@ class Program
                     string? filePath = Console.ReadLine();
                     if (!string.IsNullOrEmpty(filePath))
                     {
-                        await quizService.ImportFromJsonAsync(filePath);
+                        await gradingService.ImportFromJsonAsync(filePath);
                     }
                     else
                     {
