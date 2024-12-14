@@ -10,17 +10,19 @@ class Program
 
         while (true)
         {
-            Console.WriteLine("\nQuiz App Menu:");
-            Console.WriteLine("1. Create a Quiz");
-            Console.WriteLine("2. Take a Quiz");
-            Console.WriteLine("3. Delete a Quiz");
-            Console.WriteLine("4. Save Quizzes to File");
-            Console.WriteLine("5. Load Quizzes from File");
-            Console.WriteLine("6. Exit");
-            Console.Write("Choose an option: ");
+            // Display the main menu for the user
+            Console.WriteLine("\nMenu aplikacji Quiz:");
+            Console.WriteLine("1. Stwórz quiz");
+            Console.WriteLine("2. Rozwiąż quiz");
+            Console.WriteLine("3. Usuń quiz");
+            Console.WriteLine("4. Zapisz quizy do pliku");
+            Console.WriteLine("5. Wczytaj quizy z pliku");
+            Console.WriteLine("6. Wyjdź");
+            Console.Write("Wybierz opcję: ");
 
             string? choice = Console.ReadLine();
 
+            // Process user input and call the appropriate method
             switch (choice)
             {
                 case "1":
@@ -34,16 +36,16 @@ class Program
                     break;
                 case "4":
                     quizManager.SaveQuizzesToFile(filePath);
-                    Console.WriteLine("Quizzes saved!");
+                    Console.WriteLine("Quizy zapisane!");
                     break;
                 case "5":
                     quizManager.LoadQuizzesFromFile(filePath);
-                    Console.WriteLine("Quizzes loaded!");
+                    Console.WriteLine("Quizy wczytane!");
                     break;
                 case "6":
-                    return;
+                    return; // Exit the application
                 default:
-                    Console.WriteLine("Invalid choice. Try again.");
+                    Console.WriteLine("Nieprawidłowy wybór. Spróbuj ponownie.");
                     break;
             }
         }
@@ -51,91 +53,102 @@ class Program
 
     static void CreateQuiz(QuizManager quizManager)
     {
-        Console.Write("Enter quiz title: ");
+        // Get quiz title from the user
+        Console.Write("Podaj tytuł quizu: ");
         string? title = Console.ReadLine();
         if (string.IsNullOrEmpty(title))
         {
-            Console.WriteLine("Quiz title cannot be empty!");
+            Console.WriteLine("Tytuł quizu nie może być pusty!");
             return;
         }
 
-        var quiz = new Quiz { Title = title };
+        Console.Write("Czy chcesz pokazać poprawne odpowiedzi po błędnych odpowiedziach? (tak/nie): ");
+        string? showAnswersInput = Console.ReadLine();
+        bool showCorrectAnswers = showAnswersInput?.ToLower() == "tak";
+
+        var quiz = new Quiz { Title = title, ShowCorrectAnswers = showCorrectAnswers }; // Create a new quiz object
 
         while (true)
         {
-            Console.Write("Enter question text (or type 'done' to finish): ");
+            // Get question text from the user
+            Console.Write("Podaj treść pytania (lub wpisz 'koniec', aby zakończyć): ");
             string? questionText = Console.ReadLine();
-            if (string.IsNullOrEmpty(questionText) || questionText.ToLower() == "done")
+            if (string.IsNullOrEmpty(questionText) || questionText.ToLower() == "koniec")
                 break;
 
-            var question = new Question { Text = questionText };
+            var question = new Question { Text = questionText }; // Create a new question object
 
-            Console.Write("Enter the number of answer choices for this question: ");
+            Console.Write("Podaj liczbę odpowiedzi dla tego pytania: ");
             if (int.TryParse(Console.ReadLine(), out int numChoices) && numChoices > 1)
             {
+                // Get the answer choices from the user
                 for (int i = 1; i <= numChoices; i++)
                 {
-                    Console.Write($"Enter choice {i}: ");
+                    Console.Write($"Podaj odpowiedź {i}: ");
                     string? choice = Console.ReadLine();
                     if (!string.IsNullOrEmpty(choice))
                         question.Choices.Add(choice);
                 }
 
-                Console.Write("Enter the number of correct answers for this question: ");
+                // Get the number of correct answers from the user
+                Console.Write("Podaj liczbę poprawnych odpowiedzi: ");
                 if (int.TryParse(Console.ReadLine(), out int numCorrect) && numCorrect > 0 && numCorrect <= numChoices)
                 {
-                    Console.WriteLine("Enter the correct choices by their numbers (separated by commas): ");
+                    Console.WriteLine("Podaj poprawne odpowiedzi według numerów (oddzielone przecinkami): ");
                     string? correctChoicesInput = Console.ReadLine();
                     var correctChoices = correctChoicesInput?.Split(',').Select(s => int.TryParse(s.Trim(), out int idx) ? idx - 1 : -1).Where(idx => idx >= 0 && idx < numChoices).ToList();
 
                     if (correctChoices != null && correctChoices.Count == numCorrect)
                     {
-                        question.CorrectChoices = correctChoices;
-                        quiz.Questions.Add(question);
+                        question.CorrectChoices = correctChoices; // Assign correct answers to the question
+                        quiz.Questions.Add(question); // Add the question to the quiz
                     }
                     else
                     {
-                        Console.WriteLine("Invalid correct choices. Skipping question.");
+                        Console.WriteLine("Nieprawidłowe poprawne odpowiedzi. Pytanie pominięte.");
                     }
                 }
                 else
                 {
-                    Console.WriteLine("Invalid number of correct answers. Skipping question.");
+                    Console.WriteLine("Nieprawidłowa liczba poprawnych odpowiedzi. Pytanie pominięte.");
                 }
             }
             else
             {
-                Console.WriteLine("Invalid number of choices. Skipping question.");
+                Console.WriteLine("Nieprawidłowa liczba odpowiedzi. Pytanie pominięte.");
             }
         }
 
-        quizManager.AddQuiz(quiz);
-        Console.WriteLine("Quiz created!");
+        quizManager.AddQuiz(quiz); // Add the quiz to the quiz manager
+        Console.WriteLine("Quiz utworzony!");
     }
 
     static void TakeQuiz(QuizManager quizManager)
     {
         if (!quizManager.Quizzes.Any())
         {
-            Console.WriteLine("No quizzes available.");
+            Console.WriteLine("Brak dostępnych quizów.");
             return;
         }
 
-        Console.WriteLine("Available quizzes:");
+        // Display available quizzes
+        Console.WriteLine("Dostępne quizy:");
         for (int i = 0; i < quizManager.Quizzes.Count; i++)
         {
             Console.WriteLine($"{i + 1}. {quizManager.Quizzes[i].Title}");
         }
 
-        Console.Write("Choose a quiz number to take (or type 'back' to return): ");
+        // Let the user choose a quiz to take
+        Console.Write("Wybierz numer quizu (lub wpisz 'wstecz', aby wrócić): ");
         string? input = Console.ReadLine();
-        if (input?.ToLower() == "back") return;
+        if (input?.ToLower() == "wstecz") return;
 
         if (int.TryParse(input, out int quizIndex) && quizIndex >= 1 && quizIndex <= quizManager.Quizzes.Count)
         {
             var quiz = quizManager.Quizzes[quizIndex - 1];
             int score = 0;
 
+            // Iterate through the quiz questions
             foreach (var question in quiz.Questions)
             {
                 Console.WriteLine($"\n{question.Text}");
@@ -144,21 +157,34 @@ class Program
                     Console.WriteLine($"{i + 1}. {question.Choices[i]}");
                 }
 
-                Console.Write("Your answers (separated by commas): ");
+                Console.Write("Twoje odpowiedzi (oddzielone przecinkami): ");
                 string? answersInput = Console.ReadLine();
                 var answers = answersInput?.Split(',').Select(s => int.TryParse(s.Trim(), out int idx) ? idx - 1 : -1).Where(idx => idx >= 0 && idx < question.Choices.Count).ToList();
 
+                // Check if the user's answers match the correct answers
                 if (answers != null && answers.OrderBy(a => a).SequenceEqual(question.CorrectChoices.OrderBy(a => a)))
                 {
                     score++;
                 }
+                else
+                {
+                    Console.WriteLine("Błędna odpowiedź.");
+                    if (quiz.ShowCorrectAnswers)
+                    {
+                        Console.WriteLine("Poprawne odpowiedzi:");
+                        foreach (var correct in question.CorrectChoices)
+                        {
+                            Console.WriteLine($"- {question.Choices[correct]}");
+                        }
+                    }
+                }
             }
 
-            Console.WriteLine($"\nYou scored {score}/{quiz.Questions.Count}!");
+            Console.WriteLine($"\nTwój wynik: {score}/{quiz.Questions.Count}!");
         }
         else
         {
-            Console.WriteLine("Invalid quiz number.");
+            Console.WriteLine("Nieprawidłowy numer quizu.");
         }
     }
 
@@ -166,29 +192,31 @@ class Program
     {
         if (!quizManager.Quizzes.Any())
         {
-            Console.WriteLine("No quizzes available to delete.");
+            Console.WriteLine("Brak dostępnych quizów do usunięcia.");
             return;
         }
 
-        Console.WriteLine("Available quizzes:");
+        // Display available quizzes
+        Console.WriteLine("Dostępne quizy:");
         for (int i = 0; i < quizManager.Quizzes.Count; i++)
         {
             Console.WriteLine($"{i + 1}. {quizManager.Quizzes[i].Title}");
         }
 
-        Console.Write("Choose a quiz number to delete (or type 'back' to return): ");
+        // Let the user choose a quiz to delete
+        Console.Write("Wybierz numer quizu do usunięcia (lub wpisz 'wstecz', aby wrócić): ");
         string? input = Console.ReadLine();
-        if (input?.ToLower() == "back") return;
+        if (input?.ToLower() == "wstecz") return;
 
         if (int.TryParse(input, out int quizIndex) && quizIndex >= 1 && quizIndex <= quizManager.Quizzes.Count)
         {
             var deletedQuiz = quizManager.Quizzes[quizIndex - 1];
-            quizManager.Quizzes.RemoveAt(quizIndex - 1);
-            Console.WriteLine($"Quiz '{deletedQuiz.Title}' deleted.");
+            quizManager.Quizzes.RemoveAt(quizIndex - 1); // Remove the selected quiz
+            Console.WriteLine($"Quiz '{deletedQuiz.Title}' usunięty.");
         }
         else
         {
-            Console.WriteLine("Invalid quiz number.");
+            Console.WriteLine("Nieprawidłowy numer quizu.");
         }
     }
 }
