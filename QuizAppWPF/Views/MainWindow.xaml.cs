@@ -78,21 +78,20 @@ namespace QuizAppWPF.Views
 
                     foreach (var choice in question.Choices)
                     {
-                        // Uncheck all chosen answers
-                        choice.IsSelected = false;
+                        choice.IsSelected = false; // Clear all selected answers
                     }
                 }
 
-                // Clear results text
+                // Clear results and hide results text
                 ResultsTextBlock.Text = string.Empty;
                 ResultsTextBlock.Visibility = Visibility.Collapsed;
 
-                // Reset SelectedQuiz
+                // Reset selected quiz to null to simulate leaving the quiz
                 viewModel.SelectedQuiz = null;
-                viewModel.Questions.Clear(); // Clear any loaded questions
+                viewModel.Questions.Clear(); // Clear loaded questions
             }
 
-            // Reset visibility to show quiz selection
+            // Show quiz selection screen
             QuizSelectionGrid.Visibility = Visibility.Visible;
             QuestionGrid.Visibility = Visibility.Collapsed;
         }

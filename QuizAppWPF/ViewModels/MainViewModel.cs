@@ -2,21 +2,25 @@
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using QuizAppDB.Data;
 using QuizAppDB.Models;
-using QuizAppWPF.Helpers;
 
 namespace QuizAppWPF.ViewModels
 {
     public class MainViewModel : INotifyPropertyChanged
     {
-        private readonly QuizRepository _quizRepository;
+        // Collection of questions for the selected quiz
+        private ObservableCollection<QuestionViewModel> _questions = new ObservableCollection<QuestionViewModel>();
+        public ObservableCollection<QuestionViewModel> Questions
+        {
+            get => _questions;
+            set
+            {
+                _questions = value;
+                OnPropertyChanged();
+            }
+        }
 
-        public ObservableCollection<Quiz>? Quizzes { get; set; } = new();
-        public ObservableCollection<QuestionViewModel>? Questions { get; set; } = new();
-        public bool ShowResults { get; set; } = false; // Controls result display
-
+        // The currently selected quiz
         private Quiz? _selectedQuiz;
         public Quiz? SelectedQuiz
         {
@@ -24,46 +28,56 @@ namespace QuizAppWPF.ViewModels
             set
             {
                 _selectedQuiz = value;
-                OnPropertyChanged();
                 LoadQuestions();
-                ShowResults = false; // Reset results when a new quiz is selected
-                OnPropertyChanged(nameof(ShowResults));
+                OnPropertyChanged();
             }
         }
 
+        // Collection of all available quizzes
+        public ObservableCollection<Quiz> Quizzes { get; } = new ObservableCollection<Quiz>();
+
+        // Constructor to initialize the ViewModel
         public MainViewModel()
         {
-            var dbContext = DBContextFactory.Create();
-            _quizRepository = new QuizRepository(dbContext);
-
-            _ = LoadQuizzesAsync();
+            LoadQuizzes();
         }
 
-        private async Task LoadQuizzesAsync()
+        // Loads all quizzes from the database
+        private void LoadQuizzes()
         {
-            var quizzesFromDb = await _quizRepository.GetAllQuizzesAsync();
-            if (quizzesFromDb != null)
-            {
-                foreach (var quiz in quizzesFromDb)
-                {
-                    Quizzes?.Add(quiz);
-                }
-            }
+            using var context = Helpers.DBContextFactory.Create();
+            var quizzes = context.Quizzes.ToList();
+            Quizzes.Clear();
+            quizzes.ForEach(q => Quizzes.Add(q));
         }
 
+        // Loads questions for the selected quiz from the database
         private void LoadQuestions()
         {
-            Questions?.Clear();
-            if (SelectedQuiz?.Questions != null)
+            Questions.Clear();
+            if (SelectedQuiz != null)
             {
-                foreach (var question in SelectedQuiz.Questions)
+                using var context = Helpers.DBContextFactory.Create();
+                var questions = context.Questions
+                    .Where(q => q.QuizId == SelectedQuiz.Id)
+                    .ToList();
+
+                foreach (var question in questions)
                 {
-                    Questions?.Add(new QuestionViewModel(question));
+                    // Load choices for each question
+                    var choices = context.Choices
+                        .Where(c => c.QuestionId == question.Id)
+                        .ToList();
+
+                    Questions.Add(new QuestionViewModel(question, choices, SelectedQuiz.ShowCorrectAnswers));
                 }
             }
         }
 
+        // Event to notify when a property value changes
         public event PropertyChangedEventHandler? PropertyChanged;
+
+        // Method to raise the PropertyChanged event
         protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

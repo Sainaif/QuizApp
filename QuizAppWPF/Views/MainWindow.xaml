@@ -4,6 +4,7 @@
         xmlns:vm="clr-namespace:QuizAppWPF.ViewModels"
         Title="Aplikacja Quiz" Height="700" Width="900">
 
+    <!-- Set the DataContext to the MainViewModel -->
     <Window.DataContext>
         <vm:MainViewModel />
     </Window.DataContext>
@@ -16,12 +17,14 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
+            <!-- List of available quizzes -->
             <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" Margin="10">
                 <ListView ItemsSource="{Binding Quizzes}" 
                           SelectedItem="{Binding SelectedQuiz, Mode=TwoWay}"
                           DisplayMemberPath="Title" />
             </ScrollViewer>
 
+            <!-- Buttons to start quiz or quit application -->
             <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
                 <Button Content="Rozpocznij Quiz" Width="150" Height="30" Margin="5"
                         Click="StartQuiz_Click" />
@@ -37,6 +40,7 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
+            <!-- List of questions and choices -->
             <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" Margin="10">
                 <ItemsControl ItemsSource="{Binding Questions}">
                     <ItemsControl.ItemTemplate>

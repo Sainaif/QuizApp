@@ -1,5 +1,5 @@
-﻿using QuizApp.Logic; // For QuizLogic and GradingLogic
-using QuizApp.Persistence; // For QuizManager
+﻿using QuizApp.Logic; 
+using QuizApp.Persistence; 
 using System;
 
 class Program
