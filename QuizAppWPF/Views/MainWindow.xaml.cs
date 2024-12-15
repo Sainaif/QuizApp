@@ -17,6 +17,20 @@ namespace QuizAppWPF.Views
             {
                 QuizSelectionGrid.Visibility = Visibility.Collapsed;
                 QuestionGrid.Visibility = Visibility.Visible;
+
+                // Reset answers and interaction state for all questions
+                foreach (var question in viewModel.Questions)
+                {
+                    question.ShowAnswers = false;
+
+                    foreach (var choice in question.Choices)
+                    {
+                        choice.IsSelected = false;
+                    }
+                }
+
+                ResultsTextBlock.Text = string.Empty;
+                ResultsTextBlock.Visibility = Visibility.Collapsed;
             }
             else
             {
@@ -28,11 +42,12 @@ namespace QuizAppWPF.Views
         {
             if (DataContext is MainViewModel viewModel)
             {
-                var questions = viewModel.Questions ?? Enumerable.Empty<QuestionViewModel>();
-                int correctAnswers = questions.Count(q =>
-                    q.Choices?.Where(c => c.IsCorrect).All(c => c.IsSelected) ?? false);
+                // Count only questions where all correct choices are selected and no incorrect ones
+                int correctAnswers = viewModel.Questions.Count(question =>
+                    question.Choices.Where(choice => choice.IsCorrect).All(choice => choice.IsSelected) &&
+                    question.Choices.Where(choice => !choice.IsCorrect).All(choice => !choice.IsSelected));
 
-                int totalQuestions = questions.Count();
+                int totalQuestions = viewModel.Questions.Count;
                 double percentage = totalQuestions > 0 ? (double)correctAnswers / totalQuestions * 100 : 0;
 
                 string grade = percentage >= 90 ? "5 (bardzo dobry)"
@@ -43,14 +58,43 @@ namespace QuizAppWPF.Views
                 ResultsTextBlock.Text = $"Wynik:\nPoprawne odpowiedzi: {correctAnswers}/{totalQuestions}\n" +
                                         $"Procent: {percentage:F2}%\nOcena: {grade}";
                 ResultsTextBlock.Visibility = Visibility.Visible;
+
+                // Show correct/incorrect answers
+                foreach (var question in viewModel.Questions)
+                {
+                    question.ShowAnswers = true;
+                }
             }
         }
 
         private void ReturnToMenu_Click(object sender, RoutedEventArgs e)
         {
+            if (DataContext is MainViewModel viewModel)
+            {
+                // Fully reset the quiz state
+                foreach (var question in viewModel.Questions)
+                {
+                    question.ShowAnswers = false; // Hide correct/incorrect answers
+
+                    foreach (var choice in question.Choices)
+                    {
+                        // Uncheck all chosen answers
+                        choice.IsSelected = false;
+                    }
+                }
+
+                // Clear results text
+                ResultsTextBlock.Text = string.Empty;
+                ResultsTextBlock.Visibility = Visibility.Collapsed;
+
+                // Reset SelectedQuiz
+                viewModel.SelectedQuiz = null;
+                viewModel.Questions.Clear(); // Clear any loaded questions
+            }
+
+            // Reset visibility to show quiz selection
             QuizSelectionGrid.Visibility = Visibility.Visible;
             QuestionGrid.Visibility = Visibility.Collapsed;
-            ResultsTextBlock.Visibility = Visibility.Collapsed;
         }
 
         private void QuitApp_Click(object sender, RoutedEventArgs e)

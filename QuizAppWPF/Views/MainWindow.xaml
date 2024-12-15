@@ -16,12 +16,10 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <!-- Scrollable List of Quizzes -->
-            <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
+            <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" Margin="10">
                 <ListView ItemsSource="{Binding Quizzes}" 
                           SelectedItem="{Binding SelectedQuiz, Mode=TwoWay}"
-                          DisplayMemberPath="Title"
-                          Margin="10" />
+                          DisplayMemberPath="Title" />
             </ScrollViewer>
 
             <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
@@ -39,32 +37,36 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <!-- Scrollable Questions -->
             <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" Margin="10">
                 <ItemsControl ItemsSource="{Binding Questions}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Margin="0,10,0,10">
                                 <!-- Question Text -->
-                                <TextBlock Text="{Binding QuestionText}" 
-                                           FontSize="16" FontWeight="Bold" 
+                                <TextBlock Text="{Binding QuestionText}" FontSize="16" FontWeight="Bold" 
                                            TextWrapping="Wrap" />
 
-                                <!-- Choices with Visual Indicators -->
+                                <!-- Choices -->
                                 <ItemsControl ItemsSource="{Binding Choices}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <StackPanel Orientation="Horizontal" Margin="5">
+                                                <!-- Choice Checkbox -->
                                                 <CheckBox Content="{Binding Text}" 
                                                           IsChecked="{Binding IsSelected, Mode=TwoWay}" 
-                                                          FontSize="14" IsEnabled="False" />
+                                                          FontSize="14" />
 
                                                 <!-- Correct/Incorrect Indicators -->
                                                 <TextBlock FontSize="14" Margin="5,0,0,0">
                                                     <TextBlock.Style>
                                                         <Style TargetType="TextBlock">
+                                                            <Setter Property="Visibility" Value="Collapsed" />
                                                             <Setter Property="Text" Value="" />
                                                             <Style.Triggers>
+                                                                <!-- Show indicators only when ShowAnswers is true -->
+                                                                <DataTrigger Binding="{Binding ShowAnswers}" Value="True">
+                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                </DataTrigger>
                                                                 <DataTrigger Binding="{Binding IsCorrect}" Value="True">
                                                                     <Setter Property="Text" Value="✔" />
                                                                     <Setter Property="Foreground" Value="Green" />
@@ -88,7 +90,7 @@
             </ScrollViewer>
 
             <!-- Results and Buttons -->
-            <StackPanel Grid.Row="1" Orientation="Vertical" HorizontalAlignment="Center" Margin="10">
+            <StackPanel Grid.Row="1" HorizontalAlignment="Center" Margin="10">
                 <TextBlock x:Name="ResultsTextBlock" FontSize="16" FontWeight="Bold" TextWrapping="Wrap" />
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="5">
                     <Button Content="Zatwierdź odpowiedzi" Width="150" Height="30" Margin="5"
