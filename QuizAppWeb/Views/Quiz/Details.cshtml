@@ -1,0 +1,19 @@
+﻿@model QuizAppDB.Models.Quiz
+
+<h1>@Model.Title</h1>
+<form method="post" asp-action="SubmitAnswers" asp-route-quizId="@Model.Id">
+    @foreach (var question in Model.Questions)
+    {
+        <div>
+            <h3>@question.Text</h3>
+            @foreach (var choice in question.Choices)
+            {
+                <div>
+                    <input type="checkbox" name="answers[@question.Id][]" value="@choice.Id" />
+                    <label>@choice.Text</label>
+                </div>
+            }
+        </div>
+    }
+    <button type="submit" class="btn btn-success">Zatwierdź odpowiedzi</button>
+</form>

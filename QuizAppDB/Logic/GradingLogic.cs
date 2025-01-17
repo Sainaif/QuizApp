@@ -96,7 +96,7 @@ namespace QuizAppDB.Logic
         }
 
         // Method to calculate the grade based on percentage
-        private int CalculateGrade(double percentage)
+        public int CalculateGrade(double percentage)
         {
             if (percentage >= 90)
                 return 5;

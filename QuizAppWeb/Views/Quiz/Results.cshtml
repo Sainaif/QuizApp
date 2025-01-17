@@ -1,0 +1,6 @@
+﻿@model QuizAppDB.Models.Quiz
+
+<h1>Wyniki Quizu: @Model.Title</h1>
+<p><strong>Wynik:</strong> @ViewBag.Score</p>
+<p><strong>Ocena:</strong> @ViewBag.Grade</p>
+<a asp-action="Index" class="btn btn-primary">Powrót do listy quizów</a>
