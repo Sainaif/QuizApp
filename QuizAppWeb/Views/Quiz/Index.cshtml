@@ -1,6 +1,7 @@
 ﻿@model IEnumerable<QuizAppDB.Models.Quiz>
 
-<h1>Lista Quizów</h1>
+<h2>Lista Quizów</h2>
+
 <table class="table">
     <thead>
         <tr>
@@ -13,7 +14,9 @@
         {
             <tr>
                 <td>@quiz.Title</td>
-                <td><a asp-action="Details" asp-route-id="@quiz.Id" class="btn btn-primary">Rozpocznij</a></td>
+                <td>
+                    <a class="btn btn-primary" asp-controller="Quiz" asp-action="Details" asp-route-id="@quiz.Id">Rozpocznij</a>
+                </td>
             </tr>
         }
     </tbody>

@@ -1,6 +1,38 @@
 ﻿@model QuizAppDB.Models.Quiz
+@{
+    var questionResults = ViewBag.QuestionResults as Dictionary<int, List<int>>;
+}
 
-<h1>Wyniki Quizu: @Model.Title</h1>
-<p><strong>Wynik:</strong> @ViewBag.Score</p>
-<p><strong>Ocena:</strong> @ViewBag.Grade</p>
-<a asp-action="Index" class="btn btn-primary">Powrót do listy quizów</a>
+<h2>Wynik</h2>
+
+<p>Poprawne odpowiedzi: @ViewBag.Score</p>
+<p>Procent: @ViewBag.Percentage%</p>
+<p>Ocena: @ViewBag.Grade</p>
+
+<h3>Twoje odpowiedzi:</h3>
+<ul>
+    @foreach (var question in Model.Questions)
+    {
+        <li>
+            <strong>@question.Text</strong>
+            <ul>
+                @foreach (var choice in question.Choices)
+                {
+                    <li>
+                        <input type="checkbox" disabled
+                        @(questionResults != null && questionResults.ContainsKey(question.Id) && questionResults[question.Id].Contains(choice.Id) ? "checked" : "") />
+                        @choice.Text
+                        @if (choice.IsCorrect)
+                        {
+                            <span style="color: green;">✔</span>
+                        }
+                        else if (questionResults != null && questionResults.ContainsKey(question.Id) && questionResults[question.Id].Contains(choice.Id))
+                        {
+                            <span style="color: red;">✘</span>
+                        }
+                    </li>
+                }
+            </ul>
+        </li>
+    }
+</ul>

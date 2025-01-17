@@ -1,0 +1,22 @@
+﻿@model QuizAppDB.Models.Quiz
+
+<h1>@Model.Title</h1>
+
+<form asp-action="SubmitQuiz" method="post">
+    <input type="hidden" name="quizId" value="@Model.Id" />
+    @foreach (var question in Model.Questions)
+    {
+        <div>
+            <h3>@question.Text</h3>
+            @foreach (var choice in question.Choices)
+            {
+                <label>
+                    <input type="checkbox" name="selectedChoices" value="@choice.Id" /> @choice.Text
+                </label>
+
+                <br />
+            }
+        </div>
+    }
+    <button type="submit">Zatwierdź odpowiedzi</button>
+</form>
