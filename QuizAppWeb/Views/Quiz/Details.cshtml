@@ -1,19 +1,39 @@
 ﻿@model QuizAppDB.Models.Quiz
 
-<h1>@Model.Title</h1>
-<form method="post" asp-action="SubmitAnswers" asp-route-quizId="@Model.Id">
+<h2>Rozwiąż quiz: @Model.Title</h2>
+
+<form method="post" action="/Quiz/SubmitAnswers">
+    <input type="hidden" name="quizId" value="@Model.Id" />
+
     @foreach (var question in Model.Questions)
     {
         <div>
-            <h3>@question.Text</h3>
+            <h4>@question.Text</h4>
             @foreach (var choice in question.Choices)
             {
                 <div>
-                    <input type="checkbox" name="answers[@question.Id][]" value="@choice.Id" />
-                    <label>@choice.Text</label>
+                    <input type="checkbox" name="answers[@question.Id]" value="@choice.Id" id="choice-@choice.Id" />
+                    <label for="choice-@choice.Id">@choice.Text</label>
                 </div>
             }
         </div>
+        <hr />
     }
-    <button type="submit" class="btn btn-success">Zatwierdź odpowiedzi</button>
+
+    <button type="submit" onclick="return validateForm()">Submit</button>
 </form>
+
+<script>
+    function validateForm() {
+        const questions = document.querySelectorAll('[name^="answers["]');
+        const questionIds = [...new Set(Array.from(questions).map(input => input.name))];
+        for (const questionId of questionIds) {
+            const answers = document.querySelectorAll(`[name="${questionId}"]:checked`);
+            if (answers.length === 0) {
+                alert("Upewnij się, że odpowiedziałeś na wszystkie pytania!");
+                return false;
+            }
+        }
+        return true;
+    }
+</script>
