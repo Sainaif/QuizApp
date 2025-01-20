@@ -49,30 +49,34 @@ namespace QuizAppWeb.Controllers
 
             foreach (var question in quiz.Questions)
             {
-                // Get user answers and correct answers
+                // Handle cases where no answer is provided
                 var userAnswers = answers.ContainsKey(question.Id) ? answers[question.Id] : new List<int>();
-                var correctChoices = question.Choices.Where(c => c.IsCorrect).Select(c => c.Id).ToList();
 
-                // Track user-selected answers
+                // Track user-selected answers (empty if none provided)
                 questionResults[question.Id] = userAnswers;
 
-                // Calculate score if all user answers are correct and match the correct choices
-                if (userAnswers.All(correctChoices.Contains) && userAnswers.Count == correctChoices.Count)
+                // Check correctness
+                var correctChoices = question.Choices.Where(c => c.IsCorrect).Select(c => c.Id).ToList();
+
+                // If no answers are selected, mark the question as incorrect
+                if (userAnswers.Count == 0 || !userAnswers.All(correctChoices.Contains) || userAnswers.Count != correctChoices.Count)
                 {
-                    score++;
+                    continue; // Skip incrementing the score for incorrect or unanswered questions
                 }
+
+                // Increment score if all answers are correct
+                score++;
             }
 
-            // Calculate percentage and grade
-            double percentage = ((double)score / quiz.Questions.Count) * 100;
+            // Calculate grade
             var gradingLogic = new GradingLogic(_quizRepository);
-            int grade = gradingLogic.CalculateGrade(percentage);
+            int grade = gradingLogic.CalculateGrade(((double)score / quiz.Questions.Count) * 100);
 
             // Pass data to the view
             ViewBag.Score = $"{score}/{quiz.Questions.Count}";
-            ViewBag.Percentage = percentage.ToString("F2");
             ViewBag.Grade = grade;
             ViewBag.QuestionResults = questionResults;
+            ViewBag.ShowCorrectAnswers = quiz.ShowCorrectAnswers; // Boolean directly passed to ViewBag
 
             return View("Results", quiz);
         }

@@ -1,12 +1,13 @@
 ﻿@model QuizAppDB.Models.Quiz
+
 @{
     var questionResults = ViewBag.QuestionResults as Dictionary<int, List<int>>;
+    var showCorrectAnswers = ViewBag.ShowCorrectAnswers as bool? ?? false;
 }
 
 <h2>Wynik</h2>
 
 <p>Poprawne odpowiedzi: @ViewBag.Score</p>
-<p>Procent: @ViewBag.Percentage%</p>
 <p>Ocena: @ViewBag.Grade</p>
 
 <h3>Twoje odpowiedzi:</h3>
@@ -22,13 +23,17 @@
                         <input type="checkbox" disabled
                         @(questionResults != null && questionResults.ContainsKey(question.Id) && questionResults[question.Id].Contains(choice.Id) ? "checked" : "") />
                         @choice.Text
-                        @if (choice.IsCorrect)
+
+                        @if (showCorrectAnswers)
                         {
-                            <span style="color: green;">✔</span>
-                        }
-                        else if (questionResults != null && questionResults.ContainsKey(question.Id) && questionResults[question.Id].Contains(choice.Id))
-                        {
-                            <span style="color: red;">✘</span>
+                            if (choice.IsCorrect)
+                            {
+                                <span style="color: green; font-weight: bold;">✔</span>
+                            }
+                            else if (questionResults != null && questionResults.ContainsKey(question.Id) && questionResults[question.Id].Contains(choice.Id))
+                            {
+                                <span style="color: red; font-weight: bold;">✘</span>
+                            }
                         }
                     </li>
                 }
