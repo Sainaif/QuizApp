@@ -1,19 +1,25 @@
 ﻿@model IEnumerable<QuizAppDB.Models.Quiz>
 
+<!-- Header for the quiz list -->
 <h2>Lista Quizów</h2>
 
+<!-- Table to display the list of quizzes -->
 <table class="table">
     <thead>
         <tr>
+            <!-- Table headers -->
             <th>Tytuł</th>
             <th>Akcja</th>
         </tr>
     </thead>
     <tbody>
+        <!-- Loop through each quiz in the model -->
         @foreach (var quiz in Model)
         {
             <tr>
+                <!-- Display the quiz title -->
                 <td>@quiz.Title</td>
+                <!-- Action button to start the quiz -->
                 <td>
                     <a class="btn btn-primary" asp-controller="Quiz" asp-action="Details" asp-route-id="@quiz.Id">Rozpocznij</a>
                 </td>

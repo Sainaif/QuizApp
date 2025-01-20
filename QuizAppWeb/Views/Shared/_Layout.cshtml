@@ -4,18 +4,23 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - QuizAppWeb</title>
+    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <!-- Site-specific CSS -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body>
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm">
             <div class="container">
+                <!-- Brand -->
                 <a class="navbar-brand" asp-area="" asp-controller="Quiz" asp-action="Index">QuizAppWeb</a>
+                <!-- Toggler/collapsible Button -->
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+                <!-- Navbar links -->
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
@@ -27,6 +32,7 @@
         </nav>
     </header>
     <main class="container">
+        <!-- Main content -->
         @RenderBody()
     </main>
     <footer>
@@ -34,9 +40,13 @@
             &copy; 2025 - QuizAppWeb
         </div>
     </footer>
+    <!-- jQuery -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <!-- Bootstrap Bundle with Popper -->
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Site-specific JavaScript -->
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <!-- Additional scripts -->
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

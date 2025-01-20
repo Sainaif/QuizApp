@@ -1,17 +1,24 @@
 ﻿@model QuizAppDB.Models.Quiz
 
+<!-- Header for the quiz details page -->
 <h2>Rozwiąż quiz: @Model.Title</h2>
 
+<!-- Form to submit quiz answers -->
 <form method="post" action="/Quiz/SubmitAnswers">
+    <!-- Hidden input to store the quiz ID -->
     <input type="hidden" name="quizId" value="@Model.Id" />
 
+    <!-- Loop through each question in the quiz -->
     @foreach (var question in Model.Questions)
     {
         <div>
+            <!-- Display the question text -->
             <h4>@question.Text</h4>
+            <!-- Loop through each choice for the current question -->
             @foreach (var choice in question.Choices)
             {
                 <div>
+                    <!-- Checkbox for each choice -->
                     <input type="checkbox" name="answers[@question.Id]" value="@choice.Id" id="choice-@choice.Id" />
                     <label for="choice-@choice.Id">@choice.Text</label>
                 </div>
@@ -20,13 +27,18 @@
         <hr />
     }
 
+    <!-- Submit button for the quiz -->
     <button type="submit" onclick="return validateForm()">Submit</button>
 </form>
 
+<!-- JavaScript function to validate the form before submission -->
 <script>
     function validateForm() {
+        // Select all answer checkboxes
         const questions = document.querySelectorAll('[name^="answers["]');
+        // Get unique question IDs
         const questionIds = [...new Set(Array.from(questions).map(input => input.name))];
+        // Check if each question has at least one selected answer
         for (const questionId of questionIds) {
             const answers = document.querySelectorAll(`[name="${questionId}"]:checked`);
             if (answers.length === 0) {
@@ -37,3 +49,4 @@
         return true;
     }
 </script>
+

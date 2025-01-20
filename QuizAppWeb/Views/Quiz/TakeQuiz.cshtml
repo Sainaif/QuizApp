@@ -1,22 +1,33 @@
 ﻿@model QuizAppDB.Models.Quiz
 
+<!-- Display the quiz title -->
 <h1>@Model.Title</h1>
 
+<!-- Form to submit the quiz answers -->
 <form asp-action="SubmitQuiz" method="post">
+    <!-- Hidden input to store the quiz ID -->
     <input type="hidden" name="quizId" value="@Model.Id" />
+
+    <!-- Loop through each question in the quiz -->
     @foreach (var question in Model.Questions)
     {
         <div>
+            <!-- Display the question text -->
             <h3>@question.Text</h3>
+
+            <!-- Loop through each choice for the current question -->
             @foreach (var choice in question.Choices)
             {
                 <label>
+                    <!-- Checkbox for each choice -->
                     <input type="checkbox" name="selectedChoices" value="@choice.Id" /> @choice.Text
                 </label>
-
                 <br />
             }
         </div>
     }
+
+    <!-- Submit button for the quiz -->
     <button type="submit">Zatwierdź odpowiedzi</button>
 </form>
+

@@ -1,29 +1,36 @@
 ﻿@model QuizAppDB.Models.Quiz
 
 @{
+    // Retrieve the question results and whether to show correct answers from ViewBag
     var questionResults = ViewBag.QuestionResults as Dictionary<int, List<int>>;
     var showCorrectAnswers = ViewBag.ShowCorrectAnswers as bool? ?? false;
 }
 
+<!-- Display the result header -->
 <h2>Wynik</h2>
 
+<!-- Display the score and grade -->
 <p>Poprawne odpowiedzi: @ViewBag.Score</p>
 <p>Ocena: @ViewBag.Grade</p>
 
+<!-- Display the user's answers -->
 <h3>Twoje odpowiedzi:</h3>
 <ul>
     @foreach (var question in Model.Questions)
     {
         <li>
+            <!-- Display the question text -->
             <strong>@question.Text</strong>
             <ul>
                 @foreach (var choice in question.Choices)
                 {
                     <li>
+                        <!-- Checkbox to indicate the user's selected choices, disabled to prevent changes -->
                         <input type="checkbox" disabled
                         @(questionResults != null && questionResults.ContainsKey(question.Id) && questionResults[question.Id].Contains(choice.Id) ? "checked" : "") />
                         @choice.Text
 
+                        <!-- Display correct/incorrect indicators if showCorrectAnswers is true -->
                         @if (showCorrectAnswers)
                         {
                             if (choice.IsCorrect)
@@ -41,3 +48,4 @@
         </li>
     }
 </ul>
+
